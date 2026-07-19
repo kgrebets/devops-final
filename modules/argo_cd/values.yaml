@@ -23,6 +23,33 @@ applications:
       automated:
         prune: true
         selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+
+  - name: monitoring
+    namespace: ${namespace}
+    project: default
+    source:
+      repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: "61.7.2"
+      helm:
+        parameters:
+          - name: grafana.fullnameOverride
+            value: grafana
+          - name: grafana.service.type
+            value: ClusterIP
+          - name: grafana.service.port
+            value: "80"
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: monitoring
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
 
 repositories:
   - name: ${app_name}

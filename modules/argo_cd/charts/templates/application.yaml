@@ -8,13 +8,28 @@ spec:
   project: {{ .project | quote }}
   source:
     repoURL: {{ .source.repoURL | quote }}
+    {{- if .source.chart }}
+    chart: {{ .source.chart | quote }}
+    {{- else }}
     path: {{ .source.path | quote }}
+    {{- end }}
     targetRevision: {{ .source.targetRevision | quote }}
+    {{- if .source.helm }}
     helm:
+      {{- if .source.helm.valueFiles }}
       valueFiles:
 {{- range .source.helm.valueFiles }}
         - {{ . | quote }}
 {{- end }}
+      {{- end }}
+      {{- if .source.helm.parameters }}
+      parameters:
+{{- range .source.helm.parameters }}
+        - name: {{ .name | quote }}
+          value: {{ .value | quote }}
+{{- end }}
+      {{- end }}
+    {{- end }}
   destination:
     server: {{ .destination.server | quote }}
     namespace: {{ .destination.namespace | quote }}
@@ -22,5 +37,11 @@ spec:
     automated:
       prune: {{ .syncPolicy.automated.prune }}
       selfHeal: {{ .syncPolicy.automated.selfHeal }}
+    {{- if .syncPolicy.syncOptions }}
+    syncOptions:
+{{- range .syncPolicy.syncOptions }}
+      - {{ . | quote }}
+{{- end }}
+    {{- end }}
 ---
 {{- end }}

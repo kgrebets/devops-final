@@ -8,6 +8,7 @@ resource "helm_release" "argo_cd" {
 
   values = [
     templatefile("${path.module}/values.yaml", {
+      namespace                  = var.namespace
       applications_chart_version = var.applications_chart_version
       app_name                   = var.app_name
       app_namespace              = var.app_namespace
@@ -29,6 +30,7 @@ resource "helm_release" "argo_apps" {
 
   values = [
     templatefile("${path.module}/values.yaml", {
+      namespace                  = var.namespace
       applications_chart_version = var.applications_chart_version
       app_name                   = var.app_name
       app_namespace              = var.app_namespace
