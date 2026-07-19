@@ -55,6 +55,17 @@ terraform plan
 terraform apply
 ```
 
+Before `plan`/`apply`, provide sensitive values outside version control:
+
+```powershell
+$env:TF_VAR_rds_master_password = "<db-password>"
+$env:TF_VAR_jenkins_admin_password = "<jenkins-password>"
+$env:TF_VAR_github_token = "<github-token>"
+$env:TF_VAR_argocd_repo_password = "<argocd-repo-token>"
+```
+
+You can also copy `terraform.tfvars.example` to a local `terraform.tfvars` file and keep it out of git.
+
 ## Required Validation Commands
 
 After infrastructure is up:
@@ -116,9 +127,11 @@ helm template argo-apps modules/argo_cd/charts -f modules/argo_cd/charts/values.
 ## Important Notes
 
 - Set real credentials/secrets before production use:
-  - `module.jenkins.github_token`
-  - `module.argo_cd.repo_password`
-  - `module.rds.password`
+  - `TF_VAR_github_token`
+  - `TF_VAR_argocd_repo_password`
+  - `TF_VAR_rds_master_password`
+  - `TF_VAR_jenkins_admin_password`
+- RDS ingress is now restricted to the VPC CIDR (`10.0.0.0/16`) instead of `0.0.0.0/0`.
 - Demo app source is expected in a separate Git repository referenced by Jenkins and Argo CD variables.
 
 ## Cleanup

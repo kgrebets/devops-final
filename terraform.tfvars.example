@@ -1,0 +1,4 @@
+rds_master_password     = "REPLACE_ME"
+jenkins_admin_password  = "REPLACE_ME"
+github_token            = ""
+argocd_repo_password    = ""

@@ -118,11 +118,12 @@ module "rds" {
 
   db_name  = "mydb"
   username = "postgres"
-  password = "ChangeMe123AWS!"
+  password = var.rds_master_password
 
   vpc_id              = module.vpc.vpc_id
   subnet_private_ids  = module.vpc.private_subnet_ids
   subnet_public_ids   = module.vpc.public_subnet_ids
+  allowed_cidr_blocks = ["10.0.0.0/16"]
   publicly_accessible = false
   multi_az            = false
 
@@ -152,13 +153,13 @@ module "jenkins" {
   namespace          = "jenkins"
   release_name       = "jenkins"
   admin_user         = "admin"
-  admin_password     = "admin123"
+  admin_password     = var.jenkins_admin_password
   ecr_repository_url = module.ecr.repository_url
   aws_region         = "eu-north-1"
 
   # Update these placeholders to your GitHub account/repositories.
   github_username       = "kgrebets"
-  github_token          = ""
+  github_token          = var.github_token
   infra_repository_url  = "https://github.com/kgrebets/devops-lesson-9.git"
   app_repository_url    = "https://github.com/kgrebets/devops-django-test-app.git"
   gitops_repository_url = "https://github.com/kgrebets/devops-lesson-9.git"
@@ -184,7 +185,7 @@ module "argo_cd" {
 
   # Repo credentials are required for private repositories.
   repo_username = "kgrebets"
-  repo_password = ""
+  repo_password = var.argocd_repo_password
 
   depends_on = [module.eks]
 }

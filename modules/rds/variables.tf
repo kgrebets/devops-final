@@ -113,9 +113,9 @@ variable "publicly_accessible" {
 }
 
 variable "allowed_cidr_blocks" {
-  description = "Список CIDR блоків, з яких дозволено вхідні підключення до БД на db_port. За замовчуванням відкрито для тестування - обовʼязково звузьте для production"
+  description = "Список CIDR блоків, з яких дозволено вхідні підключення до БД на db_port. За замовчуванням доступ вимкнено, тож передайте лише потрібні внутрішні мережі або bastion CIDR."
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
 }
 
 variable "multi_az" {
