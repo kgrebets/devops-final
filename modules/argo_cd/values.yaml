@@ -1,0 +1,35 @@
+server:
+  service:
+    type: LoadBalancer
+    port: 443
+
+applicationsChartVersion: ${applications_chart_version}
+
+applications:
+  - name: ${app_name}
+    namespace: ${app_namespace}
+    project: ${argocd_project}
+    source:
+      repoURL: ${gitops_repo_url}
+      path: ${gitops_chart_path}
+      targetRevision: ${gitops_repo_branch}
+      helm:
+        valueFiles:
+          - values.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: ${app_namespace}
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+
+repositories:
+  - name: ${app_name}
+    url: ${gitops_repo_url}
+    username: ${repo_username}
+    password: ${repo_password}
+
+repoConfig:
+  insecure: "false"
+  enableLfs: "true"

@@ -1,0 +1,32 @@
+terraform import module.s3_backend.aws_s3_bucket.terraform_state_bucket terraform-state-devops-homework-5
+
+
+aws eks list-clusters --region eu-north-1 --output text
+
+aws eks describe-cluster --region eu-north-1 --name lesson-7-eks
+
+
+aws eks update-kubeconfig --region eu-north-1 --name lesson-7-eks
+
+
+CHeck cluster
+aws eks describe-cluster --name lesson-7-eks --region eu-north-1 --query "cluster.status" --output text
+
+aws eks describe-nodegroup --cluster-name lesson-7-eks --nodegroup-name lesson-7-nodes --region eu-north-1 --query "nodegroup.status" --output text
+aws eks describe-cluster --name lesson-7-eks --region eu-north-1 --query "cluster.{status:status,health:health,endpoint:endpoint}" --output json
+
+
+Investigate failed jenkins:
+
+helm -n jenkins status jenkins
+
+ Get your 'admin' user password by running:
+  kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
+
+  http://a8e6cff12879d4e1fa761134a563bb8f-492625242.eu-north-1.elb.amazonaws.com/login?from=%2F
+
+  kubectl -n jenkins get pods
+
+  kubectl -n jenkins get svc jenkins
+NAME      TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+jenkins   LoadBalancer   172.20.73.115   a8e6cff12879d4e1fa761134a563bb8f-492625242.eu-north-1.elb.amazonaws.com   80:30148/TCP   13m

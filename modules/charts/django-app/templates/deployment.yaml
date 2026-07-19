@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ .Release.Name }}-django
+
+spec:
+  replicas: {{ .Values.replicaCount | default 2 }}
+
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-django
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-django
+
+    spec:
+      containers:
+        - name: django
+
+          # Docker image stored in Amazon ECR
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.service.port }}
+
+          # Verifies that the application is still running.
+          # If this probe fails several times, Kubernetes restarts the container.
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Verifies that the application is ready to receive traffic.
+          # Until this probe succeeds, the Pod is excluded from the Service.
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # CPU and memory resources used by Kubernetes Scheduler and HPA
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Load environment variables from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
