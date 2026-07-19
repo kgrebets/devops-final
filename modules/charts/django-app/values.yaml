@@ -18,6 +18,15 @@ autoscaling:
   maxReplicas: 6
   targetCPUUtilizationPercentage: 70
 
+alerts:
+  enabled: true
+  cpuThresholdPercent: 70
+  for: 5m
+  severity: warning
+  prometheusRuleLabels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/instance: monitoring
+
 config:
   POSTGRES_HOST: db
   POSTGRES_PORT: "5432"

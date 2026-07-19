@@ -1,0 +1,27 @@
+{{- if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-django-alerts
+  labels:
+{{- range $key, $value := .Values.alerts.prometheusRuleLabels }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
+spec:
+  groups:
+    - name: {{ .Release.Name }}-django.rules
+      rules:
+        - alert: DjangoHighCpuUsage
+          expr: |
+            (
+              sum(rate(container_cpu_usage_seconds_total{namespace="{{ .Release.Namespace }}", pod=~"{{ .Release.Name }}-django-.*", container="django"}[5m]))
+              /
+              sum(kube_pod_container_resource_requests{namespace="{{ .Release.Namespace }}", pod=~"{{ .Release.Name }}-django-.*", container="django", resource="cpu", unit="core"})
+            ) * 100 > {{ .Values.alerts.cpuThresholdPercent }}
+          for: {{ .Values.alerts.for }}
+          labels:
+            severity: {{ .Values.alerts.severity | quote }}
+          annotations:
+            summary: "Django CPU usage is above {{ .Values.alerts.cpuThresholdPercent }}%"
+            description: "Average CPU usage for Django pods in namespace {{ .Release.Namespace }} has been above {{ .Values.alerts.cpuThresholdPercent }}% for {{ .Values.alerts.for }}."
+{{- end }}
