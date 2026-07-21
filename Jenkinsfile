@@ -28,7 +28,7 @@ spec:
     APP_SOURCE_PATH      = "${params.APP_SOURCE_PATH ?: 'Django/app'}"
     GITOPS_REPOSITORY    = "${params.GITOPS_REPOSITORY ?: 'https://github.com/kgrebets/devops-final.git'}"
     GITOPS_VALUES_FILE   = "${params.GITOPS_VALUES_FILE ?: 'modules/charts/django-app/values.yaml'}"
-    ECR_REPOSITORY       = "${params.ECR_REPOSITORY ?: '313588187261.dkr.ecr.eu-north-1.amazonaws.com/lesson-5-ecr'}"
+    ECR_REPOSITORY       = "${params.ECR_REPOSITORY ?: '319970832249.dkr.ecr.eu-north-1.amazonaws.com/lesson-5-ecr'}"
     AWS_REGION           = "${params.AWS_REGION ?: 'eu-north-1'}"
     IMAGE_TAG            = "${env.BUILD_NUMBER}-${env.GIT_COMMIT?.take(7) ?: 'manual'}"
   }
@@ -37,11 +37,15 @@ spec:
     stage('Checkout application source') {
       steps {
         container('git') {
-          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
+          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
             sh '''#!/bin/sh
               set -eu
               rm -rf "${WORKSPACE}/app-src"
-              git clone "https://${GIT_USERNAME}:${GIT_TOKEN}@${APP_REPOSITORY#https://}" "${WORKSPACE}/app-src"
+              if [ -n "${GIT_PASSWORD:-}" ]; then
+                git clone "https://${GIT_USERNAME}:${GIT_PASSWORD}@${APP_REPOSITORY#https://}" "${WORKSPACE}/app-src"
+              else
+                git clone "${APP_REPOSITORY}" "${WORKSPACE}/app-src"
+              fi
             '''
           }
         }
@@ -70,11 +74,16 @@ spec:
     stage('Update GitOps values and push main') {
       steps {
         container('git') {
-          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
+          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
             sh '''#!/bin/sh
               set -eu
+              if [ -z "${GIT_PASSWORD:-}" ]; then
+                echo "github-token password is empty; cannot push GitOps changes" >&2
+                exit 1
+              fi
+
               rm -rf "${WORKSPACE}/gitops"
-              git clone "https://${GIT_USERNAME}:${GIT_TOKEN}@${GITOPS_REPOSITORY#https://}" "${WORKSPACE}/gitops"
+              git clone "https://${GIT_USERNAME}:${GIT_PASSWORD}@${GITOPS_REPOSITORY#https://}" "${WORKSPACE}/gitops"
 
               cd "${WORKSPACE}/gitops"
               if [ ! -f "${GITOPS_VALUES_FILE}" ]; then
@@ -95,7 +104,7 @@ spec:
 
               git add "${GITOPS_VALUES_FILE}"
               git commit -m "chore(ci): update image tag to ${IMAGE_TAG}"
-              git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${GITOPS_REPOSITORY#https://}" HEAD:main
+              git push "https://${GIT_USERNAME}:${GIT_PASSWORD}@${GITOPS_REPOSITORY#https://}" HEAD:main
             '''
           }
         }
