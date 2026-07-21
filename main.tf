@@ -216,3 +216,13 @@ module "monitoring" {
 
   depends_on = [module.eks]
 }
+
+module "metrics_server" {
+  source = "./modules/metrics-server"
+
+  namespace    = "kube-system"
+  release_name = "metrics-server"
+  chart_version = "3.12.2"
+
+  depends_on = [module.eks]
+}
