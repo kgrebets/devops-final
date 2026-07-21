@@ -3,11 +3,11 @@
 # DB Subnet Group: визначає, у яких сабнетах фізично будуть запущені інстанси БД.
 # Сабнети перемикаються автоматично залежно від того, чи має бути БД доступна з інтернету.
 resource "aws_db_subnet_group" "default" {
-  name       = "${var.name}-subnet-group"
+  name       = var.subnet_group_name != "" ? var.subnet_group_name : "${var.name}-subnet-group"
   subnet_ids = var.publicly_accessible ? var.subnet_public_ids : var.subnet_private_ids
 
   tags = merge(var.tags, {
-    Name = "${var.name}-subnet-group"
+    Name = var.subnet_group_name != "" ? var.subnet_group_name : "${var.name}-subnet-group"
   })
 }
 

@@ -58,7 +58,9 @@ spec:
               cpu: 500m
               memory: 512Mi
 
-          # Load environment variables from ConfigMap
+          # Load environment variables from ConfigMap and Secret
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-config
+            - secretRef:
+                name: {{ .Release.Name }}-secret

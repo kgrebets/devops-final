@@ -136,3 +136,23 @@ output "argocd_admin_password_command" {
   description = "Command to print initial Argo CD admin password"
   value       = module.argo_cd.admin_password_command
 }
+
+output "monitoring_namespace" {
+  description = "Kubernetes namespace where monitoring stack is deployed"
+  value       = module.monitoring.namespace
+}
+
+output "monitoring_release_name" {
+  description = "Helm release name of kube-prometheus-stack"
+  value       = module.monitoring.release_name
+}
+
+output "grafana_service_name" {
+  description = "Grafana service name in monitoring namespace"
+  value       = module.monitoring.grafana_service
+}
+
+output "prometheus_service_name" {
+  description = "Prometheus service name in monitoring namespace"
+  value       = module.monitoring.prometheus_service
+}

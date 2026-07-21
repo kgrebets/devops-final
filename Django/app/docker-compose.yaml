@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    container_name: django-web
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-localhost}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-mydb}
+      POSTGRES_USER: ${POSTGRES_USER:-myuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
+      SECRET_KEY: ${SECRET_KEY:-django-secret-key}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}

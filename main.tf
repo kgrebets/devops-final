@@ -47,6 +47,13 @@ provider "helm" {
   }
 }
 
+locals {
+  django_postgres_db_name  = "mydb"
+  django_postgres_user     = "postgres"
+  django_allowed_hosts     = "django-app.default.svc.cluster.local,localhost,127.0.0.1"
+  django_debug             = "False"
+}
+
 #Підключаємо модуль S3 та DynamoDB
 module "s3_backend" {
   source = "./modules/s3-backend"
@@ -87,7 +94,7 @@ module "eks" {
 
   instance_types = ["t3.small"]
 
-  desired_size = 2
+  desired_size = 3
   min_size     = 1
   max_size     = 6
 }
@@ -116,13 +123,14 @@ module "rds" {
   instance_class    = "db.t3.micro"
   allocated_storage = 20
 
-  db_name  = "mydb"
-  username = "postgres"
+  db_name  = local.django_postgres_db_name
+  username = local.django_postgres_user
   password = var.rds_master_password
 
   vpc_id              = module.vpc.vpc_id
   subnet_private_ids  = module.vpc.private_subnet_ids
   subnet_public_ids   = module.vpc.public_subnet_ids
+  subnet_group_name   = "lesson-10-db-subnet-group-devops-final"
   allowed_cidr_blocks = ["10.0.0.0/16"]
   publicly_accessible = false
   multi_az            = false
@@ -160,9 +168,9 @@ module "jenkins" {
   # Update these placeholders to your GitHub account/repositories.
   github_username       = "kgrebets"
   github_token          = var.github_token
-  infra_repository_url  = "https://github.com/kgrebets/devops-lesson-9.git"
-  app_repository_url    = "https://github.com/kgrebets/devops-django-test-app.git"
-  gitops_repository_url = "https://github.com/kgrebets/devops-lesson-9.git"
+  infra_repository_url  = "https://github.com/kgrebets/devops-final.git"
+  app_repository_url    = "https://github.com/kgrebets/devops-final.git"
+  gitops_repository_url = "https://github.com/kgrebets/devops-final.git"
   gitops_values_file    = "modules/charts/django-app/values.yaml"
 
   depends_on = [module.eks]
@@ -176,16 +184,35 @@ module "argo_cd" {
   namespace = "argocd"
 
   # Tracks the same repo where Jenkins updates Helm values for GitOps sync.
-  gitops_repo_url    = "https://github.com/kgrebets/devops-lesson-9.git"
+  gitops_repo_url    = "https://github.com/kgrebets/devops-final.git"
   gitops_repo_branch = "main"
   gitops_chart_path  = "modules/charts/django-app"
 
   app_name      = "django-app"
   app_namespace = "default"
 
+  # Keep Django chart DB settings synced with provisioned RDS and app policy.
+  postgres_host     = split(":", module.rds.endpoint)[0]
+  postgres_port     = "5432"
+  postgres_user     = local.django_postgres_user
+  postgres_db       = local.django_postgres_db_name
+  postgres_password = var.rds_master_password
+  django_debug      = local.django_debug
+  allowed_hosts     = local.django_allowed_hosts
+
   # Repo credentials are required for private repositories.
   repo_username = "kgrebets"
   repo_password = var.argocd_repo_password
+
+  depends_on = [module.eks]
+}
+
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  namespace    = "monitoring"
+  release_name = "kube-prometheus-stack"
+  chart_version = "61.7.2"
 
   depends_on = [module.eks]
 }

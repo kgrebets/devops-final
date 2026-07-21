@@ -16,34 +16,24 @@ applications:
       helm:
         valueFiles:
           - values.yaml
+        parameters:
+          - name: config.POSTGRES_HOST
+            value: ${postgres_host}
+          - name: config.POSTGRES_PORT
+            value: ${postgres_port}
+          - name: config.POSTGRES_USER
+            value: ${postgres_user}
+          - name: config.POSTGRES_DB
+            value: ${postgres_db}
+          - name: secret.POSTGRES_PASSWORD
+            value: ${postgres_password}
+          - name: config.DEBUG
+            value: ${django_debug}
+          - name: config.ALLOWED_HOSTS
+            value: ${allowed_hosts}
     destination:
       server: https://kubernetes.default.svc
       namespace: ${app_namespace}
-    syncPolicy:
-      automated:
-        prune: true
-        selfHeal: true
-      syncOptions:
-        - CreateNamespace=true
-
-  - name: monitoring
-    namespace: ${namespace}
-    project: default
-    source:
-      repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: "61.7.2"
-      helm:
-        parameters:
-          - name: grafana.fullnameOverride
-            value: grafana
-          - name: grafana.service.type
-            value: ClusterIP
-          - name: grafana.service.port
-            value: "80"
-    destination:
-      server: https://kubernetes.default.svc
-      namespace: monitoring
     syncPolicy:
       automated:
         prune: true

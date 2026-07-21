@@ -18,6 +18,13 @@ resource "helm_release" "argo_cd" {
       gitops_chart_path          = var.gitops_chart_path
       repo_username              = var.repo_username
       repo_password              = var.repo_password
+      postgres_host              = var.postgres_host
+      postgres_port              = var.postgres_port
+      postgres_user              = var.postgres_user
+      postgres_db                = var.postgres_db
+      postgres_password          = var.postgres_password
+      django_debug               = var.django_debug
+      allowed_hosts              = var.allowed_hosts
     })
   ]
 }
@@ -40,6 +47,13 @@ resource "helm_release" "argo_apps" {
       gitops_chart_path          = var.gitops_chart_path
       repo_username              = var.repo_username
       repo_password              = var.repo_password
+      postgres_host              = var.postgres_host
+      postgres_port              = var.postgres_port
+      postgres_user              = var.postgres_user
+      postgres_db                = var.postgres_db
+      postgres_password          = var.postgres_password
+      django_debug               = var.django_debug
+      allowed_hosts              = var.allowed_hosts
     })
   ]
 

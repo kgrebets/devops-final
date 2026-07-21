@@ -112,6 +112,12 @@ variable "publicly_accessible" {
   default     = false
 }
 
+variable "subnet_group_name" {
+  description = "Кастомне ім'я DB Subnet Group. Якщо порожнє, використовується стандартне name-subnet-group"
+  type        = string
+  default     = ""
+}
+
 variable "allowed_cidr_blocks" {
   description = "Список CIDR блоків, з яких дозволено вхідні підключення до БД на db_port. За замовчуванням доступ вимкнено, тож передайте лише потрібні внутрішні мережі або bastion CIDR."
   type        = list(string)

@@ -69,3 +69,46 @@ variable "repo_password" {
   default     = ""
   sensitive   = true
 }
+
+variable "postgres_host" {
+  description = "PostgreSQL host override injected into the Django Helm chart values via Argo CD Application parameters"
+  type        = string
+  default     = ""
+}
+
+variable "postgres_port" {
+  description = "PostgreSQL port override injected into the Django Helm chart values"
+  type        = string
+  default     = "5432"
+}
+
+variable "postgres_user" {
+  description = "PostgreSQL user override injected into the Django Helm chart values"
+  type        = string
+  default     = ""
+}
+
+variable "postgres_db" {
+  description = "PostgreSQL database name override injected into the Django Helm chart values"
+  type        = string
+  default     = ""
+}
+
+variable "postgres_password" {
+  description = "PostgreSQL password override injected into the Django Helm chart secret values"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "django_debug" {
+  description = "Django DEBUG value override"
+  type        = string
+  default     = "False"
+}
+
+variable "allowed_hosts" {
+  description = "Comma-separated Django ALLOWED_HOSTS value"
+  type        = string
+  default     = "localhost,127.0.0.1"
+}

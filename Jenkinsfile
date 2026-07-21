@@ -24,8 +24,9 @@ spec:
     }
   }
   environment {
-    APP_REPOSITORY       = "${params.APP_REPOSITORY ?: 'https://github.com/kgrebets/devops-django-test-app.git'}"
-    GITOPS_REPOSITORY    = "${params.GITOPS_REPOSITORY ?: 'https://github.com/kgrebets/devops-lesson-9.git'}"
+    APP_REPOSITORY       = "${params.APP_REPOSITORY ?: 'https://github.com/kgrebets/devops-final.git'}"
+    APP_SOURCE_PATH      = "${params.APP_SOURCE_PATH ?: 'Django/app'}"
+    GITOPS_REPOSITORY    = "${params.GITOPS_REPOSITORY ?: 'https://github.com/kgrebets/devops-final.git'}"
     GITOPS_VALUES_FILE   = "${params.GITOPS_VALUES_FILE ?: 'modules/charts/django-app/values.yaml'}"
     ECR_REPOSITORY       = "${params.ECR_REPOSITORY ?: '313588187261.dkr.ecr.eu-north-1.amazonaws.com/lesson-5-ecr'}"
     AWS_REGION           = "${params.AWS_REGION ?: 'eu-north-1'}"
@@ -52,9 +53,13 @@ spec:
         container('kaniko') {
           sh '''#!/busybox/sh
             set -eu
+            if [ ! -f "${WORKSPACE}/app-src/${APP_SOURCE_PATH}/Dockerfile" ]; then
+              echo "Dockerfile not found at ${WORKSPACE}/app-src/${APP_SOURCE_PATH}/Dockerfile" >&2
+              exit 1
+            fi
             /kaniko/executor \
-              --context="${WORKSPACE}/app-src" \
-              --dockerfile="${WORKSPACE}/app-src/Dockerfile" \
+              --context="${WORKSPACE}/app-src/${APP_SOURCE_PATH}" \
+              --dockerfile="${WORKSPACE}/app-src/${APP_SOURCE_PATH}/Dockerfile" \
               --destination=${ECR_REPOSITORY}:${IMAGE_TAG} \
               --cache=true
           '''

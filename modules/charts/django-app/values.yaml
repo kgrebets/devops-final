@@ -1,8 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: 313588187261.dkr.ecr.eu-north-1.amazonaws.com/lesson-5-ecr
-  tag: latest
+  repository: 319970832249.dkr.ecr.eu-north-1.amazonaws.com/lesson-5-ecr
+  tag: 5-62a5f3e
   pullPolicy: IfNotPresent
 
 service:
@@ -28,12 +28,13 @@ alerts:
     app.kubernetes.io/instance: monitoring
 
 config:
-  POSTGRES_HOST: db
+  POSTGRES_HOST: REPLACE_WITH_RDS_ENDPOINT
   POSTGRES_PORT: "5432"
-  POSTGRES_USER: myuser
+  POSTGRES_USER: postgres
   POSTGRES_DB: mydb
-  POSTGRES_PASSWORD: mypassword
+  DEBUG: "False"
+  ALLOWED_HOSTS: "django-app.default.svc.cluster.local,localhost,127.0.0.1"
 
+secret:
+  POSTGRES_PASSWORD: mypassword
   SECRET_KEY: "django-secret-key"
-  DEBUG: "True"
-  ALLOWED_HOSTS: "*"

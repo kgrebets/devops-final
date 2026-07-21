@@ -1,15 +1,15 @@
 # Final DevOps Project (Terraform + AWS + EKS + CI/CD + GitOps)
 
-This repository is focused on infrastructure and platform automation. The demo Django application source code is stored in a separate repository.
+This repository contains both infrastructure automation and the demo Django application source code.
 
 ## Requirement Coverage
 
 - Infrastructure in AWS via Terraform: `VPC`, `EKS`, `RDS`, `ECR`, `Jenkins`, `Argo CD`.
-- Monitoring stack: `Prometheus` + `Grafana` deployed by Argo CD to namespace `monitoring`.
+- Monitoring stack: `Prometheus` + `Grafana` deployed by Terraform Helm module to namespace `monitoring`.
 - Autoscaling: Django Helm chart includes `HorizontalPodAutoscaler` (`autoscaling/v2`).
 - Security baseline: VPC isolation, IAM roles (EKS, IRSA for Jenkins), Security Groups (RDS).
 - Documentation and operation commands: included below.
-- Application source repository is external and consumed by Jenkins/Argo CD configuration.
+- Application source is in this repository under Django/app and consumed by Jenkins/Argo CD configuration.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ This repository is focused on infrastructure and platform automation. The demo D
 5. Database via `modules/rds` (standard RDS or Aurora mode).
 6. Jenkins via `modules/jenkins` (Helm, persistent storage, IRSA for ECR push).
 7. Argo CD via `modules/argo_cd` (Helm + app-of-apps chart).
-8. Monitoring via Argo CD app:
+8. Monitoring via Terraform Helm module:
    - Chart: `kube-prometheus-stack`
    - Namespace: `monitoring`
    - Includes Prometheus + Grafana
